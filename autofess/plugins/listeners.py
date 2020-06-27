@@ -41,6 +41,9 @@ def send_status(text, reply_to_id = 0):
 while True:
     new_dms = get_new_dms()
     for i in new_dms:
-        send_status(i)
-        time.sleep(10)
+        try:
+            send_status(i)
+        except tweepy.TweepError as e:
+            print(e)
+        time.sleep(10)    
     time.sleep(30)
