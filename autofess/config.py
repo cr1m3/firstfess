@@ -12,3 +12,4 @@ class Config:
     ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
     ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
     TRIGGER_WORD = os.getenv("TRIGGER_WORD")
+    BLACKLIST_WORD = os.getenv("BLACKLIST_WORD")

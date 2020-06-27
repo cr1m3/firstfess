@@ -5,11 +5,19 @@ from ..utils import database
 import time
 
 TRIGGER_WORD = Config.TRIGGER_WORD.split("-")
+BLACKLIST_WORD = Config.BLACKLIST_WORD.split("-")
+
 api = AutoFess().get_api()
 chunk_size = 240
 
 def split_chunk(text, chunk_size):
 	return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+
+def filter_check(text):
+    if (any(i in text.split() for i in BLACKLIST_WORD) and 
+            any(j in text for j in TRIGGER_WORD)):
+        return False
+    return True
 
 def get_new_dms():
     dms = api.list_direct_messages() # Get last 15 direct messages
@@ -20,7 +28,7 @@ def get_new_dms():
         dm_text = dm.message_create['message_data']['text']
 
         # Fetch if already posted or doesnt contain trigger word
-        if database.get(dm_id) or not any(j in dm_text for j in TRIGGER_WORD):
+        if database.get(dm_id) or not filter_check(dm_text):
             continue
 
         database.put(dm_id, dm_sender_id)
