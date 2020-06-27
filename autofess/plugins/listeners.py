@@ -22,10 +22,6 @@ def get_new_dms():
         if database.get(dm_id) or Config.TRIGGER_WORD not in dm_text:
             continue
 
-        # Message cant exceed 500 characters (to prevent spam)
-        if len(dm_text) > 500:
-            continue
-
         database.put(dm_id, dm_sender_id)
         new_dms.append(dm_text)
     return new_dms
