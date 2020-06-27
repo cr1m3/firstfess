@@ -1,10 +1,14 @@
-from tweepy import Cursor
+from tweepy import Cursor, TweepError
 from ..fess import AutoFess
 from ..config import Config
 from ..utils import database
 import time
 
 api = AutoFess().get_api()
+chunk_size = 240
+
+def split_chunk(text, chunk_size):
+	return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 def get_new_dms():
     dm = api.list_direct_messages() # Get last 15 direct messages
@@ -27,23 +31,20 @@ def get_new_dms():
     return new_dms
 
 def send_status(text, reply_to_id = 0):
-    len_text = len(text)
-    if len_text < 240 and reply_to_id == 0:
-        return api.update_status(text)
-    elif len_text > 240 and reply_to_id == 0:
-        status = text[:240]
-        update_ret = api.update_status(status + "(cont.)")
-        rest_status = 500 - len(status) - 47 # TODO Remove 47
-        return send_status(text[-rest_status:], update_ret.id)
-    else:
-        return api.update_status(text, in_reply_to_status_id=reply_to_id)
+	update_ret = api.update_status(text,
+					in_reply_to_status_id=reply_to_id)
+	return update_ret.id
 
 while True:
     new_dms = get_new_dms()
-    for i in new_dms:
+    for new_dm in new_dms:
+        reply_id = 0
         try:
-            send_status(i)
-        except tweepy.TweepError as e:
+            chunked = split_chunk(new_dm, chunk_size)
+            for chunk in chunked:
+                reply_id = send_status(chunk, reply_id)
+                time.sleep(15)
+        except TweepError as e:
             print(e)
-        time.sleep(10)    
-    time.sleep(30)
+            pass
+    time.sleep(60)
