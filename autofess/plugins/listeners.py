@@ -74,18 +74,25 @@ while True:
 		recipient_id = new_dm["sender_id"]
 		if not is_triggered(dm_text):
 			reply_text = Config.FILTERED_MESSAGE
-			dm_text = ""
+			api.send_direct_message(recipient_id, reply_text)
+			continue
+
 		try:
 			chunked = split_chunk(dm_text, chunk_size)
-			if is_media(new_dm):
+			username = bot.screen_name
+			if is_media(new_dm) :
 				media_url = new_dm["attachment"]["media"]["media_url_https"]
 				chunked[-1] = chunked[-1].rsplit(' ', 1)[0] # Remove t.co/....
 				reply_id = send_status_with_media(chunked[0], media_url)
-				del chunked[0]
+			else:
+				reply_id = send_status(chunked[0], reply_id)
+
+			fess_url = f" https://twitter.com/{username}/status/{reply_id}"
+			reply_text = Config.SUCCESS_MESSAGE + fess_url
+			del chunked[0]
 
 			for chunk in chunked:
 				reply_id = send_status(chunk, reply_id)
-				reply_text = Config.SUCCESS_MESSAGE
 		except TweepError as e:
 			reply_text = Config.ERROR_MESSAGE
 			print(e)
