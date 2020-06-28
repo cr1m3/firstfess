@@ -53,8 +53,6 @@ def is_media(message_data):
 		return True
 
 def send_status_with_media(text, media_url):
-	text = text.rsplit(' ', 1)[0] # Remove t.co/....
-
 	media_file = dl_media(media_url)
 	update_ret = api.update_with_media(media_file, status=text)
 	os.remove(media_file)
@@ -63,6 +61,7 @@ def send_status_with_media(text, media_url):
 def send_status(text, reply_to_id = 0):
 	update_ret = api.update_status(text,
 					in_reply_to_status_id=reply_to_id)
+	time.sleep(1)
 	return update_ret.id
 
 while True:
@@ -73,13 +72,15 @@ while True:
 		if not is_triggered(dm_text):
 			continue
 		try:
+			chunked = split_chunk(dm_text, chunk_size)
 			if is_media(new_dm):
 				media_url = new_dm["attachment"]["media"]["media_url_https"]
-				send_status_with_media(dm_text, media_url)
-			else:
-				chunked = split_chunk(dm_text, chunk_size)
-				for chunk in chunked:
-					reply_id = send_status(chunk, reply_id)
+				chunked[-1] = chunked[-1].rsplit(' ', 1)[0] # Remove t.co/....
+				reply_id = send_status_with_media(chunked[0], media_url)
+				del chunked[0]
+
+			for chunk in chunked:
+				reply_id = send_status(chunk, reply_id)
 			time.sleep(15)
 		except TweepError as e:
 			print(e)
