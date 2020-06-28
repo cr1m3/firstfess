@@ -11,6 +11,7 @@ TRIGGER_WORD = Config.TRIGGER_WORD.split("-")
 BLACKLIST_WORD = Config.BLACKLIST_WORD.split("-")
 
 api = AutoFess().get_api()
+bot = api.me()
 chunk_size = 240
 
 def split_chunk(text, chunk_size):
@@ -28,10 +29,11 @@ def get_new_dms():
 		dm_sender_id = dm.message_create['sender_id']
 		dm_data = dm.message_create['message_data']
 
-		if database.get(dm_id):
+		if database.get(dm_id) or int(dm_sender_id) == bot.id:
 			continue
 
 		database.put(dm_id, dm_sender_id)
+		dm_data["sender_id"] = dm_sender_id
 		new_dms.append(dm_data)
 	return new_dms
 
@@ -69,8 +71,10 @@ while True:
 	for new_dm in new_dms:
 		reply_id = 0
 		dm_text = new_dm["text"]
+		recipient_id = new_dm["sender_id"]
 		if not is_triggered(dm_text):
-			continue
+			reply_text = Config.FILTERED_MESSAGE
+			dm_text = ""
 		try:
 			chunked = split_chunk(dm_text, chunk_size)
 			if is_media(new_dm):
@@ -81,8 +85,12 @@ while True:
 
 			for chunk in chunked:
 				reply_id = send_status(chunk, reply_id)
-			time.sleep(15)
+				reply_text = Config.SUCCESS_MESSAGE
 		except TweepError as e:
+			reply_text = Config.ERROR_MESSAGE
 			print(e)
 			pass
+
+		api.send_direct_message(recipient_id, reply_text)
+		time.sleep(15)
 	time.sleep(60)
