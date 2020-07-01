@@ -1,4 +1,4 @@
-from tweepy import OAuthHandler, Stream, StreamListener, API
+from tweepy import OAuthHandler, API
 from autofess import config
 
 Config = config.Config()
