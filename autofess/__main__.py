@@ -3,4 +3,4 @@ from .plugins import listeners
 
 if __name__ == "__main__":
     AutoFess().start()
-    listeners.main()
+    listeners.Listeners().main()
