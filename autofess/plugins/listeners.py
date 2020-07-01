@@ -74,16 +74,17 @@ def send_status(text, reply_to_id=0):
     return update_ret.id
 
 
-def process_fess(dm_text):
+def process_fess(direct_message):
     reply_id = 0
+    dm_text = direct_message["text"]
     if not is_triggered(dm_text):
         return Config.FILTERED_MESSAGE
 
+    chunked = split_chunk(dm_text, chunk_size)
+    username = bot.screen_name
     try:
-        chunked = split_chunk(dm_text, chunk_size)
-        username = bot.screen_name
-        if is_media(new_dm):
-            media_url = new_dm["attachment"]["media"]["media_url_https"]
+        if is_media(direct_message):
+            media_url = direct_message["attachment"]["media"]["media_url_https"]
             chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
             reply_id = send_status_with_media(chunked[0], media_url)
         else:
@@ -106,7 +107,7 @@ def main():
         new_dms = get_new_dms()
         for new_dm in new_dms:
             recipient_id = new_dm["sender_id"]
-            reply_text = process_fess(new_dm["text"])
+            reply_text = process_fess(new_dm)
             api.send_direct_message(recipient_id, reply_text)
             time.sleep(15)
         time.sleep(60)
