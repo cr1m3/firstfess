@@ -4,6 +4,7 @@ from requests_oauthlib import OAuth1
 import requests
 import os
 import time
+import spintax
 
 TRIGGER_WORD = config.TRIGGER_WORD.split("-")
 BLACKLIST_WORD = config.BLACKLIST_WORD.split("-")
@@ -108,6 +109,6 @@ class Listeners:
             for new_dm in new_dms:
                 recipient_id = new_dm["sender_id"]
                 reply_text = self.process_fess(new_dm)
-                self.api.send_direct_message(recipient_id, reply_text)
+                self.api.send_direct_message(recipient_id, spintax.spin(reply_text))
                 time.sleep(15)
             time.sleep(60)
