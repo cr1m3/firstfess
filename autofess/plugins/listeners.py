@@ -1,7 +1,7 @@
 from tweepy import TweepError
 from ..fess import AutoFess
 from ..config import Config
-from ..utils import database
+from autofess import utils
 from requests_oauthlib import OAuth1
 import requests
 import os
@@ -10,8 +10,6 @@ import time
 TRIGGER_WORD = Config.TRIGGER_WORD.split("-")
 BLACKLIST_WORD = Config.BLACKLIST_WORD.split("-")
 
-api = AutoFess().get_api()
-bot = api.me()
 chunk_size = 240
 
 
@@ -21,23 +19,6 @@ def split_chunk(text, chunk_size):
 
 def is_triggered(text):
     return any(i in text.split() for i in BLACKLIST_WORD) is False and any(j in text for j in TRIGGER_WORD)
-
-
-def get_new_dms():
-    dms = api.list_direct_messages()  # Get last 15 direct messages
-    new_dms = []
-    for dm in dms:
-        dm_id = dm.id
-        dm_sender_id = dm.message_create["sender_id"]
-        dm_data = dm.message_create["message_data"]
-
-        if database.get(dm_id) or int(dm_sender_id) == bot.id:
-            continue
-
-        database.put(dm_id, dm_sender_id)
-        dm_data["sender_id"] = dm_sender_id
-        new_dms.append(dm_data)
-    return new_dms
 
 
 def dl_media(media_url):
@@ -61,53 +42,73 @@ def is_media(message_data):
         return True
 
 
-def send_status_with_media(text, media_url):
-    media_file = dl_media(media_url)
-    update_ret = api.update_with_media(media_file, status=text)
-    os.remove(media_file)
-    return update_ret.id
+class Listeners:
+    db = utils.database.Datafess("listen_fess")
 
+    def __init__(self):
+        self.api = AutoFess().get_api()
+        self.me = self.api.me()
 
-def send_status(text, reply_to_id=0):
-    update_ret = api.update_status(text, in_reply_to_status_id=reply_to_id)
-    time.sleep(1)
-    return update_ret.id
+    def get_new_dms(self):
+        dms = self.api.list_direct_messages()  # Get last 15 direct messages
+        new_dms = []
+        for dm in dms:
+            dm_id = dm.id
+            dm_sender_id = dm.message_create["sender_id"]
+            dm_data = dm.message_create["message_data"]
 
+            if self.db.get(dm_id) or int(dm_sender_id) == self.me.id:
+                continue
 
-def process_fess(direct_message):
-    reply_id = 0
-    dm_text = direct_message["text"]
-    if not is_triggered(dm_text):
-        return Config.FILTERED_MESSAGE
+            self.db.put(dm_id, dm_sender_id)
+            dm_data["sender_id"] = dm_sender_id
+            new_dms.append(dm_data)
+        return new_dms
 
-    chunked = split_chunk(dm_text, chunk_size)
-    username = bot.screen_name
-    try:
-        if is_media(direct_message):
-            media_url = direct_message["attachment"]["media"]["media_url_https"]
-            chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
-            reply_id = send_status_with_media(chunked[0], media_url)
-        else:
-            reply_id = send_status(chunked[0], reply_id)
+    def send_status_with_media(self, text, media_url):
+        media_file = dl_media(media_url)
+        update_ret = self.api.update_with_media(media_file, status=text)
+        os.remove(media_file)
+        return update_ret.id
 
-        fess_url = f" https://twitter.com/{username}/status/{reply_id}"
-        reply_text = Config.SUCCESS_MESSAGE + fess_url
-        del chunked[0]
+    def send_status(self, text, reply_to_id=0):
+        update_ret = self.api.update_status(text, in_reply_to_status_id=reply_to_id)
+        time.sleep(1)
+        return update_ret.id
 
-        for chunk in chunked:
-            reply_id = send_status(chunk, reply_id)
-    except TweepError as e:
-        reply_text = Config.ERROR_MESSAGE
-        print(e)
-    return reply_text
+    def process_fess(self, direct_message):
+        reply_id = 0
+        dm_text = direct_message["text"]
+        if not is_triggered(dm_text):
+            return Config.FILTERED_MESSAGE
 
+        chunked = split_chunk(dm_text, chunk_size)
+        username = self.me.screen_name
+        try:
+            if is_media(direct_message):
+                media_url = direct_message["attachment"]["media"]["media_url_https"]
+                chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
+                reply_id = self.send_status_with_media(chunked[0], media_url)
+            else:
+                reply_id = self.send_status(chunked[0], reply_id)
 
-def main():
-    while True:
-        new_dms = get_new_dms()
-        for new_dm in new_dms:
-            recipient_id = new_dm["sender_id"]
-            reply_text = process_fess(new_dm)
-            api.send_direct_message(recipient_id, reply_text)
-            time.sleep(15)
-        time.sleep(60)
+            fess_url = f" https://twitter.com/{username}/status/{reply_id}"
+            reply_text = Config.SUCCESS_MESSAGE + fess_url
+            del chunked[0]
+
+            for chunk in chunked:
+                reply_id = self.send_status(chunk, reply_id)
+        except TweepError as e:
+            reply_text = Config.ERROR_MESSAGE
+            print(e)
+        return reply_text
+
+    def main(self):
+        while True:
+            new_dms = self.get_new_dms()
+            for new_dm in new_dms:
+                recipient_id = new_dm["sender_id"]
+                reply_text = self.process_fess(new_dm)
+                self.api.send_direct_message(recipient_id, reply_text)
+                time.sleep(15)
+            time.sleep(60)

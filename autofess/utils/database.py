@@ -1,20 +1,25 @@
 import plyvel
-
-# Plyvel
-postDB = plyvel.DB("database/post.db", create_if_missing=True)
+import msgpack
 
 
-def intToBytes(key):
-    return bytes(str(key), "utf-8")
+def _encode(value):
+    return msgpack.packb(value, use_bin_type=True)
 
 
-def put(key, value):
-    return postDB.put(bytes(key, "utf-8"), bytes(value, "utf-8"))
+def _decode(value):
+    return msgpack.unpackb(value, raw=False)
 
 
-def get(key):
-    return postDB.get(bytes(key, "utf-8"))
+class Datafess:
+    def __init__(self, db):
+        self._db = plyvel.DB("database/" + db, create_if_missing=True)
 
+    def put(self, key, value):
+        value = _encode(value)
+        return self._db.put(key.encode("utf-8"), value)
 
-def delete(key):
-    return postDB.delete(bytes(key, "utf-8"))
+    def get(self, key):
+        return self._db.get(key.encode("utf-8"))
+
+    def delete(self, key):
+        return self._db.delete(key.encode("utf-8"))
