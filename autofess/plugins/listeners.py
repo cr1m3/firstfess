@@ -76,7 +76,6 @@ class Listeners:
         update_ret = self.api.update_status(
             text, in_reply_to_status_id=reply_to_id
         )
-        time.sleep(1)
         return update_ret.id
 
     def process_fess(self, direct_message):
@@ -101,6 +100,7 @@ class Listeners:
             del chunked[0]
 
             for chunk in chunked:
+                time.sleep(10)
                 reply_id = self.send_status(chunk, reply_id)
         except TweepError as e:
             reply_text = config.ERROR_MESSAGE
