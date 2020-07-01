@@ -1,14 +1,13 @@
 from tweepy import TweepError
 from ..fess import AutoFess
-from ..config import Config
-from autofess import utils
+from autofess import utils, config
 from requests_oauthlib import OAuth1
 import requests
 import os
 import time
 
-TRIGGER_WORD = Config.TRIGGER_WORD.split("-")
-BLACKLIST_WORD = Config.BLACKLIST_WORD.split("-")
+TRIGGER_WORD = config.TRIGGER_WORD.split("-")
+BLACKLIST_WORD = config.BLACKLIST_WORD.split("-")
 
 chunk_size = 240
 
@@ -23,10 +22,10 @@ def is_triggered(text):
 
 def dl_media(media_url):
     auth = OAuth1(
-        client_key=Config.CONSUMER_KEY,
-        client_secret=Config.CONSUMER_SECRET,
-        resource_owner_key=Config.ACCESS_TOKEN,
-        resource_owner_secret=Config.ACCESS_TOKEN_SECRET,
+        client_key=config.CONSUMER_KEY,
+        client_secret=config.CONSUMER_SECRET,
+        resource_owner_key=config.ACCESS_TOKEN,
+        resource_owner_secret=config.ACCESS_TOKEN_SECRET,
     )
     r = requests.get(media_url, auth=auth)
     file_name = "image/" + media_url.split("/")[-1]
@@ -80,7 +79,7 @@ class Listeners:
         reply_id = 0
         dm_text = direct_message["text"]
         if not is_triggered(dm_text):
-            return Config.FILTERED_MESSAGE
+            return config.FILTERED_MESSAGE
 
         chunked = split_chunk(dm_text, chunk_size)
         username = self.me.screen_name
@@ -93,13 +92,13 @@ class Listeners:
                 reply_id = self.send_status(chunked[0], reply_id)
 
             fess_url = f" https://twitter.com/{username}/status/{reply_id}"
-            reply_text = Config.SUCCESS_MESSAGE + fess_url
+            reply_text = config.SUCCESS_MESSAGE + fess_url
             del chunked[0]
 
             for chunk in chunked:
                 reply_id = self.send_status(chunk, reply_id)
         except TweepError as e:
-            reply_text = Config.ERROR_MESSAGE
+            reply_text = config.ERROR_MESSAGE
             print(e)
         return reply_text
 
