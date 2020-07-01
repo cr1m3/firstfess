@@ -89,9 +89,8 @@ class Listeners:
         username = self.me.screen_name
         try:
             if is_media(direct_message):
-                media_url = direct_message["attachment"]["media"][
-                    "media_url_https"
-                ]
+                attachment = direct_message["attachment"]
+                media_url = attachment["media"]["media_url_https"]
                 chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
                 reply_id = self.send_status_with_media(chunked[0], media_url)
             else:
