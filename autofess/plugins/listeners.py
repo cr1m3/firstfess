@@ -13,11 +13,13 @@ chunk_size = 240
 
 
 def split_chunk(text, chunk_size):
-    return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
+    return [text[i: i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 
 def is_triggered(text):
-    return any(i in text.split() for i in BLACKLIST_WORD) is False and any(j in text for j in TRIGGER_WORD)
+    return any(i in text.split() for i in BLACKLIST_WORD) is False and any(
+        j in text for j in TRIGGER_WORD
+    )
 
 
 def dl_media(media_url):
@@ -35,7 +37,7 @@ def dl_media(media_url):
 
 
 def is_media(message_data):
-    if not "attachment" in message_data:
+    if "attachment" not in message_data:
         return False
     elif message_data["attachment"]["type"] == "media":
         return True
@@ -71,7 +73,9 @@ class Listeners:
         return update_ret.id
 
     def send_status(self, text, reply_to_id=0):
-        update_ret = self.api.update_status(text, in_reply_to_status_id=reply_to_id)
+        update_ret = self.api.update_status(
+            text, in_reply_to_status_id=reply_to_id
+        )
         time.sleep(1)
         return update_ret.id
 
@@ -85,7 +89,9 @@ class Listeners:
         username = self.me.screen_name
         try:
             if is_media(direct_message):
-                media_url = direct_message["attachment"]["media"]["media_url_https"]
+                media_url = direct_message["attachment"]["media"][
+                    "media_url_https"
+                ]
                 chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
                 reply_id = self.send_status_with_media(chunked[0], media_url)
             else:
