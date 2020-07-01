@@ -1,6 +1,7 @@
-from .fess import AutoFess
-from .plugins import listeners
+from autofess import fess, plugins
 
+listeners = plugins.listeners.Listeners()
+autofess = fess.AutoFess()
 if __name__ == "__main__":
-    AutoFess().start()
-    listeners.Listeners().main()
+    autofess.start()
+    listeners.main()

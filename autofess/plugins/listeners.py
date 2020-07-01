@@ -1,6 +1,5 @@
 from tweepy import TweepError
-from ..fess import AutoFess
-from autofess import utils, config
+from autofess import utils, config, fess
 from requests_oauthlib import OAuth1
 import requests
 import os
@@ -9,11 +8,10 @@ import time
 TRIGGER_WORD = config.TRIGGER_WORD.split("-")
 BLACKLIST_WORD = config.BLACKLIST_WORD.split("-")
 
-chunk_size = 240
 
-
-def split_chunk(text, chunk_size):
-    return [text[i: i + chunk_size] for i in range(0, len(text), chunk_size)]
+def split_chunk(text):
+    chunk_size = 240
+    return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 
 def is_triggered(text):
@@ -39,15 +37,14 @@ def dl_media(media_url):
 def is_media(message_data):
     if "attachment" not in message_data:
         return False
-    elif message_data["attachment"]["type"] == "media":
-        return True
+    return True
 
 
 class Listeners:
     db = utils.database.Datafess("listen_fess")
 
     def __init__(self):
-        self.api = AutoFess().get_api()
+        self.api = fess.AutoFess().get_api()
         self.me = self.api.me()
 
     def get_new_dms(self):
@@ -73,9 +70,7 @@ class Listeners:
         return update_ret.id
 
     def send_status(self, text, reply_to_id=0):
-        update_ret = self.api.update_status(
-            text, in_reply_to_status_id=reply_to_id
-        )
+        update_ret = self.api.update_status(text, in_reply_to_status_id=reply_to_id)
         return update_ret.id
 
     def process_fess(self, direct_message):
@@ -84,7 +79,7 @@ class Listeners:
         if not is_triggered(dm_text):
             return config.FILTERED_MESSAGE
 
-        chunked = split_chunk(dm_text, chunk_size)
+        chunked = split_chunk(dm_text)
         username = self.me.screen_name
         try:
             if is_media(direct_message):
