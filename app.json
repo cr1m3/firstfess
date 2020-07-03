@@ -1,0 +1,51 @@
+{
+    "name": "AutoFess",
+    "description": "Bot simple untuk akun twitter menfess.",
+    "keywords": [
+        "twitter",
+        "menfess"
+    ],
+    "repository": "https://github.com/ProtoChuz/AutoFess",
+    "env": {
+        "CONSUMER_KEY": {
+            "description": "Get this value from https://developer.twitter.com/en/apps/"
+        },
+        "CONSUMER_SECRET": {
+            "description": "Get this value from https://developer.twitter.com/en/apps/"
+        },
+        "ACCESS_TOKEN": {
+            "description": "Get this value from https://developer.twitter.com/en/apps/"
+        },
+        "ACCESS_TOKEN_SECRET": {
+            "description": "Get this value from https://developer.twitter.com/en/apps/"
+        },
+        "TRIGGER_WORD": {
+            "description": "Kata yang digunakan untuk mengirim menfess (dipisah dengan '-')"
+        },
+        "BLACKLIST_WORD": {
+            "description": "Kata yang diblokir dari menfess (dipisah dengan '-')"
+        },
+        "SUCCESS_MESSAGE": {
+            "description": "Pesan jika menfess sukses dikirim (Support spintax)"
+        },
+        "FILTERED_MESSAGE": {
+            "description": "Pesan jika menfess tidak memiliki kata trigger (Support spintax)"
+        },
+        "ERROR_MESSAGE": {
+            "description": "Pesan jika menfess gagal dikirim (Support spintax)"
+        }
+    },
+    "addons": [
+    ],
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        }
+    ],
+    "formation": {
+        "worker": {
+            "quantity": 1,
+            "size": "free"
+        }
+    }
+} 

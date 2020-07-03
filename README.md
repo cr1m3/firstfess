@@ -10,3 +10,6 @@ Bot simple untuk akun twitter menfess. Semua direct message akan dikirim menjadi
 5. Isi `config.env` sesuai dengan contoh
 6. Jalankan bot dengan `python -m autofess`
 7. Hentikan bot dengan <kbd>CTRL+C</kbd>
+
+### Deploy dengan Heroku
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ProtoChuz/AutoFess)

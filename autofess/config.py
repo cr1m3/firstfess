@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv("config.env")
+CONFIG_FILE = "config.env"
+if os.path.isfile(CONFIG_FILE):
+    load_dotenv(CONFIG_FILE)
 
 CONSUMER_KEY = os.getenv("CONSUMER_KEY")
 CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
