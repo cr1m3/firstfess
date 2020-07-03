@@ -1,0 +1,6 @@
+plyvel
+python-dotenv
+requests
+requests_oauthlib
+spintax
+tweepy
