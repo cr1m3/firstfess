@@ -6,7 +6,7 @@ class AutoFess:
     def __init__(self):
         auth = OAuthHandler(config.CONSUMER_KEY, config.CONSUMER_SECRET)
         auth.set_access_token(config.ACCESS_TOKEN, config.ACCESS_TOKEN_SECRET)
-        self.api = API(auth)
+        self.api = API(auth, retry_count=10, retry_delay=5, retry_errors=set([503]))
 
     def start(self):
         me = self.api.me()
