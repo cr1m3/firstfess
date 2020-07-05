@@ -19,6 +19,9 @@
         "ACCESS_TOKEN_SECRET": {
             "description": "Get this value from https://developer.twitter.com/en/apps/"
         },
+        "DATABASE_URL": {
+            "description": "Get this value from https://cloud.mongodb.com/"
+        },
         "TRIGGER_WORD": {
             "description": "Kata yang digunakan untuk mengirim menfess (dipisah dengan '-')"
         },

@@ -1,5 +1,5 @@
 msgpack
-plyvel
+pymongo[srv]
 python-dotenv
 requests
 requests_oauthlib
