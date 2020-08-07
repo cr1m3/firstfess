@@ -36,9 +36,7 @@ def dl_media(media_url):
 
 
 def is_media(message_data):
-    if "attachment" not in message_data:
-        return False
-    return True
+    return "attachment" in message_data
 
 
 class Listeners:
