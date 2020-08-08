@@ -1,5 +1,7 @@
-from tweepy import OAuthHandler, API
 from autofess import config
+from tweepy import API, OAuthHandler
+
+from .libs import twitivity
 
 
 class AutoFess:
@@ -14,3 +16,13 @@ class AutoFess:
 
     def get_api(self):
         return self.api
+
+    def configure_webhook(self):
+        activity = twitivity.Activity()
+        resp = activity.register_webhook(callback_url=config.CALLBACK_URL)
+        activity.subscribe()
+        return resp.json()["id"]
+
+    def delete_webhook(self, webhook_id):
+        activity = twitivity.Activity()
+        resp = activity.delete_webhook(webhook_id=webhook_id)

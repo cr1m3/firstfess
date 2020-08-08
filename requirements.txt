@@ -5,3 +5,4 @@ requests
 requests_oauthlib
 spintax
 tweepy
+flask

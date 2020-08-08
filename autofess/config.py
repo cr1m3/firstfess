@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 CONFIG_FILE = "config.env"
@@ -9,6 +10,9 @@ CONSUMER_KEY = os.getenv("CONSUMER_KEY")
 CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
+ENV_NAME = os.getenv("ENV_NAME")
+
+CALLBACK_URL = os.getenv("CALLBACK_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 TRIGGER_WORD = os.getenv("TRIGGER_WORD")
