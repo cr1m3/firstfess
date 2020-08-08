@@ -7,8 +7,6 @@ import requests
 
 from abc import ABC, abstractmethod
 from .. import config
-
-from tweepy.error import TweepError
 from tweepy import OAuthHandler
 from flask import Flask, request
 from threading import Thread
