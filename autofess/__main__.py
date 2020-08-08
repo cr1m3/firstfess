@@ -1,6 +1,5 @@
 import atexit
 import time
-from threading import Thread
 
 from autofess import fess, plugins
 

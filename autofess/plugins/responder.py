@@ -1,10 +1,9 @@
 from tweepy import TweepError
-from autofess import utils, config, fess
+from autofess import config, fess
 from requests_oauthlib import OAuth1
 import requests
 import os
 import time
-import spintax
 
 TRIGGER_WORD = config.TRIGGER_WORD.split("-")
 BLACKLIST_WORD = config.BLACKLIST_WORD.split("-")

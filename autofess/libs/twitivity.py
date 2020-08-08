@@ -1,11 +1,8 @@
 import json
 import hmac
-import os
 import hashlib
 import base64
 import re
-import signal
-import sys
 import requests
 
 from abc import ABC, abstractmethod

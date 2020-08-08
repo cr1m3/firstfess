@@ -2,7 +2,6 @@ import json
 import spintax
 
 from ..libs import twitivity
-from autofess import config
 from .responder import Responders
 
 responders = Responders()
