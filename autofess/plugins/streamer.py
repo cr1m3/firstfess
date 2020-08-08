@@ -10,7 +10,8 @@ me = responders.me
 
 
 class StreamEvent(twitivity.Event):
-    def on_data(self, data: json) -> None:
+    @staticmethod
+    def on_data(data: json) -> None:
         if "direct_message_events" in data:
             message = data["direct_message_events"][0]["message_create"]
             sender_id = message["sender_id"]

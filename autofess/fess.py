@@ -17,12 +17,14 @@ class AutoFess:
     def get_api(self):
         return self.api
 
-    def configure_webhook(self):
+    @staticmethod
+    def configure_webhook():
         activity = twitivity.Activity()
         resp = activity.register_webhook(callback_url=config.CALLBACK_URL)
         activity.subscribe()
         return resp.json()["id"]
 
-    def delete_webhook(self, webhook_id):
+    @staticmethod
+    def delete_webhook(webhook_id):
         activity = twitivity.Activity()
         resp = activity.delete_webhook(webhook_id=webhook_id)
