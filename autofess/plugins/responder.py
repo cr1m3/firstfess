@@ -36,31 +36,13 @@ def dl_media(media_url):
 
 
 def is_media(message_data):
-    return "attachment" in message_data
+    return "attachment" in message_data["message_data"]
 
 
-class Listeners:
-    db = utils.database.Datafess("listen_fess")
-
+class Responders:
     def __init__(self):
         self.api = fess.AutoFess().get_api()
         self.me = self.api.me()
-
-    def get_new_dms(self):
-        dms = self.api.list_direct_messages()  # Get last 15 direct messages
-        new_dms = []
-        for dm in dms:
-            dm_id = dm.id
-            dm_sender_id = dm.message_create["sender_id"]
-            dm_data = dm.message_create["message_data"]
-
-            if self.db.get(dm_id) or int(dm_sender_id) == self.me.id:
-                continue
-
-            self.db.put(dm_id, dm_sender_id)
-            dm_data["sender_id"] = dm_sender_id
-            new_dms.append(dm_data)
-        return new_dms
 
     def send_status_with_media(self, text, media_url):
         media_file = dl_media(media_url)
@@ -74,7 +56,7 @@ class Listeners:
 
     def process_fess(self, direct_message):
         reply_id = 0
-        dm_text = direct_message["text"]
+        dm_text = direct_message["message_data"]["text"]
         if not is_triggered(dm_text):
             return config.FILTERED_MESSAGE
 
@@ -82,7 +64,7 @@ class Listeners:
         username = self.me.screen_name
         try:
             if is_media(direct_message):
-                attachment = direct_message["attachment"]
+                attachment = direct_message["message_data"]["attachment"]
                 media_url = attachment["media"]["media_url_https"]
                 chunked[-1] = chunked[-1].rsplit(" ", 1)[0]  # Remove t.co/....
                 reply_id = self.send_status_with_media(chunked[0], media_url)
@@ -100,13 +82,3 @@ class Listeners:
             reply_text = config.ERROR_MESSAGE
             print(e)
         return reply_text
-
-    def main(self):
-        while True:
-            new_dms = self.get_new_dms()
-            for new_dm in new_dms:
-                recipient_id = new_dm["sender_id"]
-                reply_text = self.process_fess(new_dm)
-                self.api.send_direct_message(recipient_id, spintax.spin(reply_text))
-                time.sleep(15)
-            time.sleep(60)
