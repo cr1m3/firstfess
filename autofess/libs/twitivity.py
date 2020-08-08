@@ -30,52 +30,40 @@ class Activity:
         :param data: POST Request payload parameter
         :return: json
         """
-        try:
-            with requests.Session() as r:
-                response = r.request(
-                    url="/".join(
-                        [
-                            self._protocol,
-                            self._host,
-                            self._version,
-                            self._product,
-                            endpoint,
-                        ]
-                    ),
-                    method=method,
-                    auth=self._auth.apply_auth(),
-                    data=data,
-                )
-                return response
-        except TweepError:
-            raise
+        with requests.Session() as r:
+            response = r.request(
+                url="/".join(
+                    [
+                        self._protocol,
+                        self._host,
+                        self._version,
+                        self._product,
+                        endpoint,
+                    ]
+                ),
+                method=method,
+                auth=self._auth.apply_auth(),
+                data=data,
+            )
+            return response
 
     def register_webhook(self, callback_url: str) -> json:
-        try:
-            return self.api(
-                method="POST",
-                endpoint=f"all/{self._env_name}/webhooks.json",
-                data={"url": callback_url},
-            )
-        except Exception:
-            raise
+        return self.api(
+            method="POST",
+            endpoint=f"all/{self._env_name}/webhooks.json",
+            data={"url": callback_url},
+        )
 
     def delete_webhook(self, webhook_id: int) -> json:
-        try:
-            return self.api(
-                method="DELETE",
-                endpoint=f"all/{self._env_name}/webhooks/{webhook_id}.json",
-            )
-        except Exception:
-            raise
+        return self.api(
+            method="DELETE",
+            endpoint=f"all/{self._env_name}/webhooks/{webhook_id}.json",
+        )
 
     def subscribe(self) -> json:
-        try:
-            return self.api(
-                method="POST", endpoint=f"all/{self._env_name}/subscriptions.json",
-            )
-        except Exception:
-            raise
+        return self.api(
+            method="POST", endpoint=f"all/{self._env_name}/subscriptions.json",
+        )
 
 
 def url_params(url: str) -> str:
